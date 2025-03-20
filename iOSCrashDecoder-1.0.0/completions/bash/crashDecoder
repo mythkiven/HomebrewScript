@@ -1,0 +1,21 @@
+_crashDecoder() 
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="-i -o -folder --folder -h --help -v --version"
+
+    if [[ ${prev} == "-i" || ${prev} == "-o" ]]; then 
+        COMPREPLY=( $(compgen -f "${cur}") )
+        return 0
+    elif [[ ${prev} == "-folder" || ${prev} == "--folder" ]]; then 
+        COMPREPLY=( $(compgen -d "${cur}") )
+        return 0
+    else 
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    fi
+}
+
+complete -F _crashDecoder crashDecoder 
