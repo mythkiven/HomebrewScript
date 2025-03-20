@@ -1,0 +1,23 @@
+#compdef crashDecoder
+
+_crashDecoder() {
+  local -a opts
+  
+  opts=(
+    '-i[指定输入文件]:输入文件:_files'
+    '-o[指定输出文件]:输出文件:_files'
+    '-folder[指定文件夹]:文件夹:_directories'
+    '--folder[指定文件夹]:文件夹:_directories'
+    '-h[显示帮助信息]'
+    '--help[显示帮助信息]'
+    '-v[显示版本信息]'
+    '--version[显示版本信息]'
+  )
+  
+  _arguments -s $opts
+}
+
+_crashDecoder "$@"
+
+# 只有用户安装了自动补全的插件。这里才会生效。
+

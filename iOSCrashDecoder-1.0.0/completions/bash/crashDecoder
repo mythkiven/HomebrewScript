@@ -6,16 +6,18 @@ _crashDecoder()
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     opts="-i -o -folder --folder -h --help -v --version"
 
-    if [[ ${prev} == "-i" || ${prev} == "-o" ]]; then 
+    if [[ ${prev} == "-i" || ${prev} == "-o" ]]; then
         COMPREPLY=( $(compgen -f "${cur}") )
         return 0
-    elif [[ ${prev} == "-folder" || ${prev} == "--folder" ]]; then 
+    elif [[ ${prev} == "-folder" || ${prev} == "--folder" ]]; then
         COMPREPLY=( $(compgen -d "${cur}") )
         return 0
-    else 
+    else
         COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
         return 0
     fi
 }
 
 complete -F _crashDecoder crashDecoder 
+
+# 【前提】只有用户安装了自动补全的插件。这里才会生效。

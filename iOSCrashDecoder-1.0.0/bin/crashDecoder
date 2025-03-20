@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-SWIFT_SCRIPT="$SCRIPT_DIR/crashAnalysis.swift"
+SWIFT_SCRIPT="$SCRIPT_DIR/crashDecoder.swift"
 
 swift "$SWIFT_SCRIPT" "$@" 

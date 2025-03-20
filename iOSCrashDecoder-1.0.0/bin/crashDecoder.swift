@@ -10,7 +10,7 @@ final class CrashTranslator {
         
         let setEnvCommand = "export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer"
         shell(setEnvCommand)
-
+        
         let findCommand = "find /Applications/Xcode.app -name symbolicatecrash -type f"
         let result = shell(findCommand)
         
@@ -40,7 +40,7 @@ final class CrashTranslator {
         return (output.trimmingCharacters(in: .newlines), status)
     }
     func run(jsonFile: String, outputFile: String) throws {
-        _ = shell("pwd")
+        _ = shell("pwd") 
 
         let jsonUrl = URL(fileURLWithPath: jsonFile)
         
@@ -176,9 +176,30 @@ extension String {
     }
 }
 
+//  SwiftyJSON.swift
+//
+//  Copyright (c) 2014 - 2017 Ruoyu Fu, Pinglin Tang
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
 
-
-
+// MARK: - Error
+// swiftlint:disable line_length
 public enum SwiftyJSONError: Int, Swift.Error {
     case unsupportedType = 999
     case indexOutOfBounds = 900
@@ -1555,9 +1576,7 @@ extension JSON: Codable {
     }
 }
 
-
 let arguments = CommandLine.arguments
-
 
 func printUsage() {
     print("使用方法:")
@@ -1571,7 +1590,6 @@ func printUsage() {
     print("   -h, --help     显示此帮助信息")
     print("   -v, --version  显示版本信息")
 }
-
 
 var i = 1
 var jsonFile: String? = nil
@@ -1694,9 +1712,9 @@ func processFolder(folderPath: String) throws {
     }
     
     print("所有.ips文件转换为.crash文件完成!")
-    
+
     let updatedFiles = (try? fileManager.contentsOfDirectory(atPath: folderPath)) ?? []
-    
+
     var dsymFiles: [String] = []
     let allContents = (try? fileManager.subpathsOfDirectory(atPath: folderPath)) ?? []
     
