@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
+# 此脚本用于将Swift命令包装为独立可执行文件
 
-
+# 获取Swift脚本的绝对路径
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SWIFT_SCRIPT="$SCRIPT_DIR/crashAnalysis.swift"
 
-SWIFT_SCRIPT="$SCRIPT_DIR/crashDecoder.swift"
-
+# 直接执行Swift脚本并传递所有参数
 swift "$SWIFT_SCRIPT" "$@" 

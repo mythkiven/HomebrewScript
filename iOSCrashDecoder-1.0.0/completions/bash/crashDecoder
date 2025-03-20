@@ -7,12 +7,15 @@ _crashDecoder()
     opts="-i -o -folder --folder -h --help -v --version"
 
     if [[ ${prev} == "-i" || ${prev} == "-o" ]]; then
+        # 文件补全
         COMPREPLY=( $(compgen -f "${cur}") )
         return 0
     elif [[ ${prev} == "-folder" || ${prev} == "--folder" ]]; then
+        # 文件夹补全
         COMPREPLY=( $(compgen -d "${cur}") )
         return 0
     else
+        # 选项补全
         COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
         return 0
     fi
@@ -21,3 +24,12 @@ _crashDecoder()
 complete -F _crashDecoder crashDecoder 
 
 # 【前提】只有用户安装了自动补全的插件。这里才会生效。
+# Bash 自动补全脚本文件
+# 这是一个用于 crashDecoder 命令的 Bash 自动补全脚本。它的主要功能是在你使用 crashDecoder 命令时，提供命令行参数的自动补全功能。
+# 这个脚本具体实现以下功能：
+# 当你输入 crashDecoder 后按 Tab 键时，会自动提示可用的命令选项：
+# -i（输入文件）
+# -o（输出文件）
+# -folder 或 --folder（文件夹）
+# -h 或 --help（帮助）
+# -v 或 --version（版本）

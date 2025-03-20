@@ -5,12 +5,16 @@ import Foundation
 
 final class CrashTranslator {
     
+
+    // 在 CrashTranslator 类中添加查找 symbolicatecrash 工具的方法
     func findSymbolicatecrashPaths() -> [String] {
         print("正在查找 symbolicatecrash 工具...")
         
+        // 1. 设置环境变量
         let setEnvCommand = "export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer"
         shell(setEnvCommand)
         
+        // 2. 查找所有 symbolicatecrash 路径
         let findCommand = "find /Applications/Xcode.app -name symbolicatecrash -type f"
         let result = shell(findCommand)
         
@@ -40,7 +44,8 @@ final class CrashTranslator {
         return (output.trimmingCharacters(in: .newlines), status)
     }
     func run(jsonFile: String, outputFile: String) throws {
-        _ = shell("pwd") 
+        _ = shell("pwd")  // 使用 _ 忽略返回值
+        // print("Working in \(pwd)")
 
         let jsonUrl = URL(fileURLWithPath: jsonFile)
         
@@ -1576,8 +1581,10 @@ extension JSON: Codable {
     }
 }
 
+// 主入口点
 let arguments = CommandLine.arguments
 
+// 函数：显示使用帮助
 func printUsage() {
     print("使用方法:")
     print("1. 处理单个文件:")
@@ -1591,14 +1598,18 @@ func printUsage() {
     print("   -v, --version  显示版本信息")
 }
 
+// 解析命令行参数
 var i = 1
 var jsonFile: String? = nil
 var outputFile: String? = nil
 var folderPath: String? = nil
 
+// 首先检查是否只传入了一个参数，且该参数不是以'-'开头的选项
 if arguments.count == 2 && !arguments[1].hasPrefix("-") {
+    // 假定这是一个文件夹路径
     folderPath = arguments[1]
 } else {
+    // 否则解析常规参数
     while i < arguments.count {
         switch arguments[i] {
         case "-i":
@@ -1642,7 +1653,11 @@ if arguments.count == 2 && !arguments[1].hasPrefix("-") {
     }
 }
 
+// 解决：防止显示全部代码
+// 使用特殊标记将脚本内容与主逻辑区分开
+// 这里添加一个main函数并调用它，防止整个文件被当作输出展示
 func main() {
+    // 处理逻辑
     if let folder = folderPath {
         print("处理文件夹: \(folder)")
         do {
@@ -1669,6 +1684,7 @@ func main() {
     }
 }
 
+// 实际执行主函数
 main()
 
 func processFolder(folderPath: String) throws {
@@ -1677,11 +1693,13 @@ func processFolder(folderPath: String) throws {
     let fileManager = FileManager.default
     var isDirectory: ObjCBool = false
     
+    // 检查路径是否存在且是文件夹
     guard fileManager.fileExists(atPath: folderPath, isDirectory: &isDirectory), 
           isDirectory.boolValue else {
         throw NSError(domain: "CrashAnalyzer", code: 1, userInfo: [NSLocalizedDescriptionKey: "\(folderPath) 不是一个有效的文件夹"])
     }
     
+    // 获取文件夹中的所有文件 - 修复：移除guard let，因为该方法返回非可选类型
     let files: [String]
     do {
         files = try fileManager.contentsOfDirectory(atPath: folderPath)
@@ -1689,6 +1707,7 @@ func processFolder(folderPath: String) throws {
         throw NSError(domain: "CrashAnalyzer", code: 2, userInfo: [NSLocalizedDescriptionKey: "无法读取文件夹内容: \(error.localizedDescription)"])
     }
     
+    // 过滤出.ips文件
     let ipsFiles = files.filter { $0.hasSuffix(".ips") }
     
     if ipsFiles.isEmpty {
@@ -1704,17 +1723,21 @@ func processFolder(folderPath: String) throws {
         let crashFile = ipsPath.replacingOccurrences(of: ".ips", with: ".crash")
         
         print("[\(index+1)/\(ipsFiles.count)] 处理文件: \(ipsFile)")
+        // 修复：添加try关键字，因为run方法会抛出错误
         do {
             try translator.run(jsonFile: ipsPath, outputFile: crashFile)
         } catch {
             print("处理文件失败: \(ipsFile), 错误: \(error.localizedDescription)")
+            // 继续处理下一个文件而不中断整个流程
         }
     }
     
     print("所有.ips文件转换为.crash文件完成!")
-
+    
+    // 在这里重新获取文件列表，确保包含新转换的 .crash 文件
     let updatedFiles = (try? fileManager.contentsOfDirectory(atPath: folderPath)) ?? []
-
+    
+    // 查找文件夹中的所有.dSYM文件
     var dsymFiles: [String] = []
     let allContents = (try? fileManager.subpathsOfDirectory(atPath: folderPath)) ?? []
     
@@ -1733,9 +1756,11 @@ func processFolder(folderPath: String) throws {
         print("  - \(dsymFile)")
     }
     
+    // 执行符号化处理
     if !dsymFiles.isEmpty {
         print("开始符号化处理...")
         
+        // 使用更新后的文件列表查找所有 .crash 文件
         let crashFiles = updatedFiles.filter { $0.hasSuffix(".crash") }
         print("找到 \(crashFiles.count) 个需要符号化的.crash文件")
         for crashFile in crashFiles {
@@ -1748,6 +1773,7 @@ func processFolder(folderPath: String) throws {
             return
         }
         
+        // 查找所有可用的 symbolicatecrash 路径
         let symbolicatecrashPaths = translator.findSymbolicatecrashPaths()
         
         if symbolicatecrashPaths.isEmpty {
@@ -1755,6 +1781,7 @@ func processFolder(folderPath: String) throws {
             return
         }
         
+        // 尝试每个找到的 symbolicatecrash 路径
         var anySucceeded = false
         
         for (pathIndex, symbolicatecrashPath) in symbolicatecrashPaths.enumerated() {
@@ -1762,28 +1789,36 @@ func processFolder(folderPath: String) throws {
             
             var allSucceeded = true
             
+            // 对每个 crash 文件进行单独处理
             for crashFile in crashFiles {
                 let crashFilePath = (folderPath as NSString).appendingPathComponent(crashFile)
                 let tempOutputPath = crashFilePath + ".temp"
                 
                 print("正在符号化: \(crashFile)")
                 
+                // 构建 symbolicatecrash 命令
                 var command = "export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer && "
                 command += "\(symbolicatecrashPath) \"\(crashFilePath)\""
                 
+                // 添加所有.dSYM文件
                 for dsymFile in dsymFiles {
                     command += " \"\(dsymFile)\""
                 }
                 
+                // 添加输出重定向到临时文件
                 command += " > \"\(tempOutputPath)\""
                 
+                // 执行符号化命令
                 let (result, status) = translator.shellWithStatus(command)
                 
                 if status == 0 && fileManager.fileExists(atPath: tempOutputPath) {
+                    // 如果成功，将临时文件移动到原始 crash 文件位置
                     do {
+                        // 删除原始文件
                         if fileManager.fileExists(atPath: crashFilePath) {
                             try fileManager.removeItem(atPath: crashFilePath)
                         }
+                        // 将符号化的结果移动到原位置
                         try fileManager.moveItem(atPath: tempOutputPath, toPath: crashFilePath)
                         print("✓ 成功符号化: \(crashFile)")
                         anySucceeded = true
@@ -1796,6 +1831,7 @@ func processFolder(folderPath: String) throws {
                     print("  错误信息: \(result)")
                     print("  状态码: \(status)")
                     
+                    // 清理临时文件
                     if fileManager.fileExists(atPath: tempOutputPath) {
                         try? fileManager.removeItem(atPath: tempOutputPath)
                     }
@@ -1804,6 +1840,7 @@ func processFolder(folderPath: String) throws {
                 }
             }
             
+            // 如果当前路径成功处理了所有文件，就不需要尝试下一个路径
             if allSucceeded {
                 print("使用路径 \(symbolicatecrashPath) 成功处理了所有文件")
                 break

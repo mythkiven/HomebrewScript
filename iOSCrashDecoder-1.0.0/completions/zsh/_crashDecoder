@@ -21,3 +21,9 @@ _crashDecoder "$@"
 
 # 只有用户安装了自动补全的插件。这里才会生效。
 
+# 此文件用于 zsh 的自动补全
+# 使用方法：
+# 1. 将此文件保存为 _crashDecoder
+# 2. 将此文件保存到 ~/.zsh/completions/ 目录下
+# 3. 重启终端
+# 4. 使用 `crashDecoder` 命令时，按下 Tab 键即可自动补全
